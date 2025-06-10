@@ -26,19 +26,23 @@ def down(row, col, is_player):
 
 def playerRound():
     while True:
-        player_input = input("你是 O 子，請輸入列行來下子，例如: 18 表示第 1 列第 8 行：")
-        if len(player_input) < 2 or not player_input.isdigit():
-            print("❌ 輸入錯誤！請重新輸入兩位數字，例如 57。")
+        player_input = input("你是 O 子，請輸入列與行，用空格分開（例如: 10 12 表示第10列第12行）：")
+        parts = player_input.replace(',', ' ').split()
+
+        if len(parts) != 2 or not parts[0].isdigit() or not parts[1].isdigit():
+            print("❌ 輸入格式錯誤！請輸入兩個數字，用空格或逗號分隔，例如：10 12")
             continue
-        row = int(player_input[0]) - 1
-        col = int(player_input[1]) - 1
+
+        row = int(parts[0]) - 1
+        col = int(parts[1]) - 1
+
         if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE:
             if down(row, col, is_player=True):
                 return row, col
             else:
-                print("⚠️ 此處已有棋子！請重新選擇位置。")
+                print("⚠️ 此位置已有棋子，請重新選擇。")
         else:
-            print("⚠️ 座標超出棋盤範圍，請重新輸入！")
+            print("⚠️ 請輸入 1 到 15 的座標！")
 
 def checkWin(row, col, player):
     directions = [(1,0), (0,1), (1,1), (1,-1)]  # 四個方向：垂直、水平、兩個對角

@@ -63,11 +63,78 @@ def checkWin(row, col, player):
     return False
 
 def CPURound():
+    # 評估所有空格的威脅與機會
+    best_move = None
+    best_score = -1
+
+    for r in range(BOARD_SIZE):
+        for c in range(BOARD_SIZE):
+            if board[r][c] != 0:
+                continue
+
+            # 優先評估玩家的威脅
+            board[r][c] = 2  # 假裝玩家下這裡
+            if checkWin(r, c, 2):
+                board[r][c] = 0
+                board[r][c] = 1  # 搶先一步阻止玩家贏
+                return r, c
+            block_score = evaluate_potential(r, c, 2)  # 玩家潛力（越高越危險）
+            board[r][c] = 0
+
+            # 評估自己進攻潛力
+            board[r][c] = 1  # 假裝 CPU 自己下
+            win_score = evaluate_potential(r, c, 1)
+            board[r][c] = 0
+
+            # 給分邏輯：阻擋分比進攻分略高，避免防不住
+            total_score = block_score * 1.2 + win_score
+
+            if total_score > best_score:
+                best_score = total_score
+                best_move = (r, c)
+
+    if best_move:
+        r, c = best_move
+        down(r, c, is_player=False)
+        return r, c
+
+    # fallback：亂下
     while True:
-        row = random.randint(0, BOARD_SIZE - 1)
-        col = random.randint(0, BOARD_SIZE - 1)
-        if down(row, col, is_player=False):
-            return row, col
+        r = random.randint(0, BOARD_SIZE - 1)
+        c = random.randint(0, BOARD_SIZE - 1)
+        if down(r, c, is_player=False):
+            return r, c
+        
+def evaluate_potential(row, col, player):
+    directions = [(1, 0), (0, 1), (1, 1), (1, -1)]
+    score = 0
+
+    for dr, dc in directions:
+        count = 1  # 該點自己也算一子
+        for i in range(1, 5):
+            nr, nc = row + dr*i, col + dc*i
+            if 0 <= nr < BOARD_SIZE and 0 <= nc < BOARD_SIZE and board[nr][nc] == player:
+                count += 1
+            else:
+                break
+        for i in range(1, 5):
+            nr, nc = row - dr*i, col - dc*i
+            if 0 <= nr < BOARD_SIZE and 0 <= nc < BOARD_SIZE and board[nr][nc] == player:
+                count += 1
+            else:
+                break
+
+        # 加權得分機制（可依需求微調）
+        if count == 2:
+            score += 5
+        elif count == 3:
+            score += 15
+        elif count == 4:
+            score += 100
+        elif count >= 5:
+            score += 999
+    return score
+
 
 def playGame():
     while True:

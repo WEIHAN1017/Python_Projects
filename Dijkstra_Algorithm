@@ -1,3 +1,4 @@
+# heapq.heappush() 和 heapq.heappop() 是用來操作「最小堆」(min-heap) 的工具。
 from heapq import heappop, heappush
 from math import inf
 
@@ -33,3 +34,30 @@ def dijkstras(graph, start):
         
 distances_from_d = dijkstras(graph, 'D')
 print("\n\nShortest Distances: {0}".format(distances_from_d))
+
+# 舉例說明這段 Dijkstra’s Algorithm 的流程
+# 假設有一個簡單的圖:
+# graph = {
+#   'A': [('B', 2), ('C', 5)],
+#   'B': [('C', 1)],
+#   'C': []
+# }
+# 起點是 'A':
+# 初始化:
+# distances = {'A': 0, 'B': inf, 'C': inf}
+# vertices_to_explore = [(0, 'A')]
+# 流程如下:
+# 進入 while 迴圈，vertices_to_explore 有 [(0, 'A')]
+# heappop 取出 (0, 'A')，current_vertex = 'A'
+# 處理 'A' 的鄰居:
+#  'B'：新距離 = 0 + 2 = 2，比原本 inf 小，更新 distances['B'] = 2，並加進 heap
+#  'C'：新距離 = 0 + 5 = 5，比原本 inf 小，更新 distances['C'] = 5，並加進 heap
+#  現在 vertices_to_explore = [(2, 'B'), (5, 'C')]
+# 取出 (2, 'B')，current_vertex = 'B'
+# 處理 'B' 的鄰居:
+#  'C'：新距離 = 2 + 1 = 3，比原本 5 小，更新 distances['C'] = 3，加進 heap
+#  現在 vertices_to_explore = [(3, 'C'), (5, 'C')]
+# 取出 (3, 'C')，’C’ 沒有鄰居
+# 取出 (5, 'C')，’C’ 沒有鄰居
+# heap 空了，結束
+# 最後 distances = {'A': 0, 'B': 2, 'C': 3}
